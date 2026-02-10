@@ -1,312 +1,490 @@
 'use client'
 
-import { useState, useRef } from 'react'
-import Link from 'next/link'
+import { LayoutWrapper } from '@/components/layout-wrapper'
 import { Button } from '@/components/ui/button'
-import Navbar from '@/components/layout/navbar'
-import Footer from '@/components/layout/footer'
-
-// Mock data for movies by category
-const movieCategories = [
-  {
-    title: "Trending Now",
-    movies: [
-      {
-        id: 1,
-        title: "The Hangover",
-        genre: "Comedy",
-        image: "/movie1.jpeg",
-        rating: 4.8,
-        year: 2024
-      },
-      {
-        id: 2,
-        title: "Superbad",
-        genre: "Comedy",
-        image: "/movie2.jpeg",
-        rating: 4.7,
-        year: 2024
-      },
-      {
-        id: 3,
-        title: "Project X",
-        genre: "Comedy, Party",
-        image: "/movie3.jpeg",
-        rating: 4.9,
-        year: 2023
-      },
-      {
-        id: 4,
-        title: "21 Jump Street",
-        genre: "Action, Comedy",
-        image: "/movie1.jpeg",
-        rating: 4.6,
-        year: 2023
-      },
-      {
-        id: 5,
-        title: "Step Brothers",
-        genre: "Comedy",
-        image: "/movie2.jpeg",
-        rating: 4.5,
-        year: 2024
-      },
-      {
-        id: 6,
-        title: "Old School",
-        genre: "Comedy",
-        image: "/movie3.jpeg",
-        rating: 4.9,
-        year: 2023
-      },
-      {
-        id: 7,
-        title: "Wedding Crashers",
-        genre: "Comedy, Romance",
-        image: "/movie1.jpeg",
-        rating: 4.7,
-        year: 2023
-      },
-      {
-        id: 8,
-        title: "Anchorman",
-        genre: "Comedy",
-        image: "/movie2.jpeg",
-        rating: 4.8,
-        year: 2024
-      }
-    ]
-  },
-  {
-    title: "Popular on Drunk Cinema",
-    movies: [
-      {
-        id: 9,
-        title: "The Other Guys",
-        genre: "Action, Comedy",
-        image: "/movie3.jpeg",
-        rating: 4.6,
-        year: 2024
-      },
-      {
-        id: 10,
-        title: "Pineapple Express",
-        genre: "Comedy, Action",
-        image: "/movie1.jpeg",
-        rating: 4.4,
-        year: 2023
-      },
-      {
-        id: 11,
-        title: "Rush Hour",
-        genre: "Action, Comedy",
-        image: "/movie2.jpeg",
-        rating: 4.8,
-        year: 2024
-      },
-      {
-        id: 12,
-        title: "Bad Boys",
-        genre: "Action, Comedy",
-        image: "/movie3.jpeg",
-        rating: 4.7,
-        year: 2023
-      },
-      {
-        id: 13,
-        title: "Deadpool",
-        genre: "Action, Comedy",
-        image: "/movie1.jpeg",
-        rating: 4.6,
-        year: 2024
-      },
-      {
-        id: 14,
-        title: "Hot Fuzz",
-        genre: "Action, Comedy",
-        image: "/movie1.jpeg",
-        rating: 4.9,
-        year: 2023
-      },
-      {
-        id: 15,
-        title: "Tropic Thunder",
-        genre: "Action, Comedy",
-        image: "/movie3.jpeg",
-        rating: 4.8,
-        year: 2024
-      }
-    ]
-  }
-]
+import Link from 'next/link'
+import {
+  BarChart3,
+  TrendingUp,
+  Users,
+  Ticket,
+  DollarSign,
+  Calendar,
+  Film,
+  RefreshCw,
+  MoreVertical,
+  ArrowUpRight,
+  ArrowDownRight,
+  Popcorn,
+  Clapperboard,
+  Star,
+  TrendingDown
+} from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import { Badge } from '@/components/ui/badge'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { useState } from 'react'
+import { cn } from '@/lib/utils'
 
 export default function HomePage() {
-  const [hoveredMovie, setHoveredMovie] = useState<number | null>(null)
-  const carouselRefs = useRef<{[key: string]: HTMLDivElement | null}>({})
+  const [timeRange, setTimeRange] = useState('week')
 
-  const scrollLeft = (categoryIndex: number) => {
-    const ref = carouselRefs.current[`category-${categoryIndex}`]
-    if (ref) {
-      ref.scrollBy({ left: -300, behavior: 'smooth' })
-    }
+  // Sample data for charts and stats
+  const stats = {
+    totalRevenue: 45230,
+    totalBookings: 342,
+    totalUsers: 156,
+    totalMovies: 24,
+    revenueChange: 12.5,
+    bookingsChange: 8.2,
+    usersChange: 5.7,
+    occupancyRate: 78
   }
 
-  const scrollRight = (categoryIndex: number) => {
-    const ref = carouselRefs.current[`category-${categoryIndex}`]
-    if (ref) {
-      ref.scrollBy({ left: 300, behavior: 'smooth' })
-    }
+  const recentBookings = [
+    { id: 1, movie: 'Inception', user: 'John Doe', time: '10:30 AM', seats: 'A1, A2', amount: '$28.50', status: 'completed' },
+    { id: 2, movie: 'The Dark Knight', user: 'Jane Smith', time: '2:15 PM', seats: 'B5, B6', amount: '$32.00', status: 'completed' },
+    { id: 3, movie: 'Interstellar', user: 'Bob Johnson', time: '6:45 PM', seats: 'C3, C4', amount: '$30.00', status: 'pending' },
+    { id: 4, movie: 'Dune: Part Two', user: 'Alice Brown', time: '8:00 PM', seats: 'D7, D8', amount: '$35.50', status: 'completed' },
+    { id: 5, movie: 'Oppenheimer', user: 'Charlie Wilson', time: '9:30 PM', seats: 'E9, E10', amount: '$29.00', status: 'cancelled' },
+  ]
+
+  const topMovies = [
+    { title: 'Dune: Part Two', revenue: 18500, bookings: 142, rating: 4.8, trend: 'up' },
+    { title: 'Oppenheimer', revenue: 16200, bookings: 128, rating: 4.7, trend: 'up' },
+    { title: 'Spider-Man: No Way Home', revenue: 14500, bookings: 112, rating: 4.6, trend: 'down' },
+    { title: 'The Batman', revenue: 13200, bookings: 98, rating: 4.5, trend: 'up' },
+    { title: 'Top Gun: Maverick', revenue: 11800, bookings: 86, rating: 4.9, trend: 'up' },
+  ]
+
+  const revenueData = {
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    data: [4500, 5200, 4800, 6100, 7300, 8500, 9200]
   }
 
-  const setCarouselRef = (ref: HTMLDivElement | null, categoryIndex: number) => {
-    carouselRefs.current[`category-${categoryIndex}`] = ref
+  const bookingData = {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    data: [1200, 1900, 1500, 2100, 1800, 2200]
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Reusable Navbar */}
-      <Navbar activePage="home" />
-
-      {/* Hero Section */}
-      <section className="pt-32 pb-16 bg-gradient-to-b from-gray-900 to-black">
-        <div className="container mx-auto px-6 text-center">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-orange-400 to-yellow-400 bg-clip-text text-transparent">
-            Welcome to Drunk Cinema
-          </h1>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Discover amazing comedy hits and party classics. Book your tickets for an unforgettable cinematic experience!
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-            <Button asChild size="lg" className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 text-lg font-semibold">
-              <Link href="/movies">
-                🎬 Browse All Movies
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="lg" className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white px-8 py-3 text-lg font-semibold">
-              <Link href="/new">
-                🔥 New & Popular
-              </Link>
+    <LayoutWrapper>
+      <div className="space-y-6">
+        {/* Header with Stats */}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center shadow-lg">
+                <Clapperboard className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-white">Cinema Dashboard</h1>
+                <p className="text-gray-400">Welcome back! Here's what's happening with your cinema today.</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="border-gray-700 text-white hover:border-yellow-500/50 hover:bg-yellow-500/10">
+                  <Calendar className="w-4 h-4 mr-2" />
+                  This Week
+                  <MoreVertical className="w-4 h-4 ml-2" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-gray-900 border-gray-800 text-white">
+                <DropdownMenuItem onClick={() => setTimeRange('day')} className="hover:bg-yellow-500/10 cursor-pointer">Today</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTimeRange('week')} className="hover:bg-yellow-500/10 cursor-pointer">This Week</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTimeRange('month')} className="hover:bg-yellow-500/10 cursor-pointer">This Month</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTimeRange('year')} className="hover:bg-yellow-500/10 cursor-pointer">This Year</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            <Button className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white">
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh
             </Button>
           </div>
         </div>
-      </section>
 
-      {/* Movie Categories with Carousel */}
-      <main className="container mx-auto px-6 pb-16">
-        {movieCategories.map((category, categoryIndex) => (
-          <section key={categoryIndex} className="mb-16">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">
-                {category.title}
-              </h2>
-              <div className="flex space-x-2">
-                <Button
-                  onClick={() => scrollLeft(categoryIndex)}
-                  variant="outline"
-                  size="sm"
-                  className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white"
-                >
-                  ←
-                </Button>
-                <Button
-                  onClick={() => scrollRight(categoryIndex)}
-                  variant="outline"
-                  size="sm"
-                  className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white"
-                >
-                  →
-                </Button>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Revenue Card */}
+          <Card className="bg-gradient-to-br from-gray-900 to-black border-yellow-500/20 hover:border-yellow-500/40 transition-colors">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-gray-400">
+                Total Revenue
+              </CardTitle>
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center">
+                <DollarSign className="w-5 h-5 text-yellow-400" />
               </div>
-            </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">${stats.totalRevenue.toLocaleString()}</div>
+              <div className="flex items-center text-sm mt-2">
+                <ArrowUpRight className="w-4 h-4 text-yellow-400 mr-1" />
+                <span className="text-yellow-400">+{stats.revenueChange}%</span>
+                <span className="text-gray-400 ml-2">from last week</span>
+              </div>
+            </CardContent>
+          </Card>
 
-            {/* Carousel Container */}
-            <div className="relative">
-              <div
-                ref={(ref) => setCarouselRef(ref, categoryIndex)}
-                className="flex space-x-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-              >
-                {category.movies.map((movie) => (
-                  <div
-                    key={movie.id}
-                    className="relative group cursor-pointer flex-shrink-0 w-64"
-                    onMouseEnter={() => setHoveredMovie(movie.id)}
-                    onMouseLeave={() => setHoveredMovie(null)}
-                  >
-                    <div className="relative overflow-hidden rounded-lg bg-gray-800 transition-all duration-300 transform group-hover:scale-105">
-                      <img 
-                        src={movie.image} 
-                        alt={movie.title}
-                        className="w-64 h-80 object-cover group-hover:brightness-50 transition-all duration-300"
+          {/* Bookings Card */}
+          <Card className="bg-gradient-to-br from-gray-900 to-black border-orange-500/20 hover:border-orange-500/40 transition-colors">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-gray-400">
+                Total Bookings
+              </CardTitle>
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500/20 to-yellow-500/20 flex items-center justify-center">
+                <Ticket className="w-5 h-5 text-orange-400" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{stats.totalBookings}</div>
+              <div className="flex items-center text-sm mt-2">
+                <ArrowUpRight className="w-4 h-4 text-yellow-400 mr-1" />
+                <span className="text-yellow-400">+{stats.bookingsChange}%</span>
+                <span className="text-gray-400 ml-2">from last week</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Users Card */}
+          <Card className="bg-gradient-to-br from-gray-900 to-black border-yellow-600/20 hover:border-yellow-600/40 transition-colors">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-gray-400">
+                Total Users
+              </CardTitle>
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-600/20 to-orange-600/20 flex items-center justify-center">
+                <Users className="w-5 h-5 text-yellow-500" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{stats.totalUsers}</div>
+              <div className="flex items-center text-sm mt-2">
+                <ArrowUpRight className="w-4 h-4 text-yellow-400 mr-1" />
+                <span className="text-yellow-400">+{stats.usersChange}%</span>
+                <span className="text-gray-400 ml-2">from last week</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Movies Card */}
+          <Card className="bg-gradient-to-br from-gray-900 to-black border-orange-600/20 hover:border-orange-600/40 transition-colors">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-gray-400">
+                Active Movies
+              </CardTitle>
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-600/20 to-yellow-600/20 flex items-center justify-center">
+                <Film className="w-5 h-5 text-orange-500" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{stats.totalMovies}</div>
+              <div className="mt-2">
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-gray-400">Occupancy Rate</span>
+                  <span className="text-yellow-400">{stats.occupancyRate}%</span>
+                </div>
+                <Progress value={stats.occupancyRate} className="h-2 bg-gray-800">
+                  <div className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full" />
+                </Progress>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Charts and Analytics Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Revenue Chart Card */}
+          <Card className="bg-gradient-to-br from-gray-900 to-black border-yellow-500/20">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-white">Revenue Overview</CardTitle>
+                  <CardDescription className="text-gray-400">Weekly revenue trends</CardDescription>
+                </div>
+                <Badge className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-yellow-500/30 text-yellow-400">
+                  <TrendingUp className="w-3 h-3 mr-1" />
+                  +12.5%
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64 relative">
+                {/* Simplified Chart Visualization */}
+                <div className="absolute bottom-0 left-0 right-0 h-48 flex items-end justify-between px-4">
+                  {revenueData.data.map((value, index) => (
+                    <div key={index} className="flex flex-col items-center">
+                      <div 
+                        className="w-8 bg-gradient-to-t from-yellow-500 to-orange-500 rounded-t-lg transition-all hover:from-yellow-400 hover:to-orange-400 shadow-lg"
+                        style={{ height: `${(value / 10000) * 100}%` }}
                       />
-                      
-                      {/* Rating Badge */}
-                      <div className="absolute top-3 right-3 bg-yellow-500 text-black px-2 py-1 rounded-full text-xs font-bold flex items-center">
-                        ⭐ {movie.rating}
-                      </div>
+                      <span className="text-xs text-gray-400 mt-2">{revenueData.labels[index]}</span>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Grid Lines */}
+                <div className="absolute inset-0">
+                  {[0, 25, 50, 75, 100].map((line) => (
+                    <div 
+                      key={line}
+                      className="absolute left-0 right-0 border-t border-gray-800/50"
+                      style={{ bottom: `${line}%` }}
+                    />
+                  ))}
+                </div>
+              </div>
+              
+              <div className="flex justify-between items-center mt-6">
+                <div>
+                  <p className="text-sm text-gray-400">Average Daily Revenue</p>
+                  <p className="text-xl font-bold text-white">$6,457</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400">Peak Revenue Day</p>
+                  <p className="text-xl font-bold text-white">Sunday</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-                      {/* Hover Overlay */}
-                      {hoveredMovie === movie.id && (
-                        <div className="absolute inset-0 bg-black/90 p-4 flex flex-col justify-end transition-all duration-300">
-                          <div className="space-y-3">
-                            <div>
-                              <h3 className="font-bold text-white text-lg mb-1">{movie.title}</h3>
-                              <p className="text-gray-400 text-sm">{movie.genre}</p>
-                            </div>
-                            
-                            <p className="text-gray-300 text-sm">{movie.year}</p>
-                            
-                            <div className="flex space-x-2 pt-2">
-                              <Button asChild size="sm" className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-3">
-                                <Link href={`/play/${movie.id}`}>
-                                  ▶ Play
-                                </Link>
-                              </Button>
-                              <Button asChild variant="outline" size="sm" className="border-gray-400 text-white hover:bg-orange-500/10 text-xs px-3">
-                                <Link href={`/info/${movie.id}`}>
-                                  ℹ Info
-                                </Link>
-                              </Button>
-                            </div>
+          {/* Bookings Chart Card */}
+          <Card className="bg-gradient-to-br from-gray-900 to-black border-orange-500/20">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-white">Bookings Trend</CardTitle>
+                  <CardDescription className="text-gray-400">Monthly booking statistics</CardDescription>
+                </div>
+                <Badge className="bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border-orange-500/30 text-orange-400">
+                  <TrendingUp className="w-3 h-3 mr-1" />
+                  +8.2%
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64 relative">
+                {/* Line Chart Visualization */}
+                <div className="absolute bottom-0 left-0 right-0 h-48">
+                  <svg className="w-full h-full" viewBox="0 0 400 200">
+                    <path
+                      d="M 0,160 L 66,140 L 133,150 L 200,110 L 266,130 L 333,100 L 400,80"
+                      fill="none"
+                      stroke="url(#lineGradient)"
+                      strokeWidth="3"
+                      className="drop-shadow-lg"
+                    />
+                    <path
+                      d="M 0,160 L 66,140 L 133,150 L 200,110 L 266,130 L 333,100 L 400,80 L 400,200 L 0,200 Z"
+                      fill="url(#areaGradient)"
+                      fillOpacity="0.2"
+                    />
+                    <defs>
+                      <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#f59e0b" />
+                        <stop offset="100%" stopColor="#f97316" />
+                      </linearGradient>
+                      <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.8" />
+                        <stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  
+                  {/* Labels */}
+                  <div className="absolute bottom-0 left-0 right-0 flex justify-between px-4">
+                    {bookingData.labels.map((label, index) => (
+                      <span key={index} className="text-xs text-gray-400">{label}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex justify-between items-center mt-6">
+                <div>
+                  <p className="text-sm text-gray-400">Total Bookings This Month</p>
+                  <p className="text-xl font-bold text-white">2,200</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400">Avg. Booking Value</p>
+                  <p className="text-xl font-bold text-white">$29.50</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Bottom Section - Tables */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Recent Bookings Table */}
+          <Card className="bg-gradient-to-br from-gray-900 to-black border-yellow-500/20">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-white">Recent Bookings</CardTitle>
+                  <CardDescription className="text-gray-400">Latest customer bookings</CardDescription>
+                </div>
+                <Link href="/bookings">
+                  <Button variant="ghost" className="text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10">
+                    View All
+                  </Button>
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-800">
+                      <th className="text-left py-3 px-2 text-sm font-medium text-gray-400">Movie</th>
+                      <th className="text-left py-3 px-2 text-sm font-medium text-gray-400">User</th>
+                      <th className="text-left py-3 px-2 text-sm font-medium text-gray-400">Amount</th>
+                      <th className="text-left py-3 px-2 text-sm font-medium text-gray-400">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentBookings.map((booking) => (
+                      <tr key={booking.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
+                        <td className="py-3 px-2">
+                          <div className="font-medium text-white flex items-center gap-2">
+                            <Popcorn className="w-4 h-4 text-yellow-500" />
+                            {booking.movie}
                           </div>
-                        </div>
-                      )}
+                          <div className="text-xs text-gray-400">{booking.time} • {booking.seats}</div>
+                        </td>
+                        <td className="py-3 px-2 text-white">{booking.user}</td>
+                        <td className="py-3 px-2 text-white font-medium">{booking.amount}</td>
+                        <td className="py-3 px-2">
+                          <Badge className={
+                            booking.status === 'completed' 
+                              ? 'bg-gradient-to-r from-yellow-500/20 to-green-500/20 text-yellow-400 border-yellow-500/30' 
+                              : booking.status === 'pending'
+                              ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-400 border-yellow-500/30'
+                              : 'bg-gradient-to-r from-red-500/20 to-orange-500/20 text-red-400 border-red-500/30'
+                          }>
+                            {booking.status}
+                          </Badge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
 
-                      {/* Bottom Gradient Overlay */}
-                      <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black to-transparent" />
-                      
-                      {/* Movie Info (Visible when not hovered) */}
-                      <div className="absolute bottom-0 left-0 right-0 p-4">
-                        <h3 className="font-semibold text-white text-sm mb-1">{movie.title}</h3>
-                        <p className="text-gray-400 text-xs">{movie.genre}</p>
+          {/* Top Movies Table */}
+          <Card className="bg-gradient-to-br from-gray-900 to-black border-orange-500/20">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-white">Top Performing Movies</CardTitle>
+                  <CardDescription className="text-gray-400">By revenue this month</CardDescription>
+                </div>
+                <Link href="/movies">
+                  <Button variant="ghost" className="text-orange-400 hover:text-orange-300 hover:bg-orange-500/10">
+                    Manage Movies
+                  </Button>
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {topMovies.map((movie, index) => (
+                  <div key={movie.title} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-800/30 group">
+                    <div className="flex items-center space-x-3">
+                      <div className={cn(
+                        "w-10 h-10 rounded-lg flex items-center justify-center font-bold text-white shadow-lg",
+                        index === 0 ? "bg-gradient-to-br from-yellow-500 to-yellow-600" :
+                        index === 1 ? "bg-gradient-to-br from-orange-500 to-orange-600" :
+                        "bg-gradient-to-br from-gray-800 to-gray-900"
+                      )}>
+                        {index + 1}
+                      </div>
+                      <div>
+                        <div className="font-medium text-white group-hover:text-yellow-300 transition-colors">
+                          {movie.title}
+                        </div>
+                        <div className="flex items-center text-sm">
+                          <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                          <span className="text-yellow-400 ml-1">{movie.rating}</span>
+                          <span className="text-gray-400 mx-2">•</span>
+                          <span className="text-gray-400">{movie.bookings} bookings</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-white">${movie.revenue.toLocaleString()}</div>
+                      <div className="flex items-center text-sm">
+                        {movie.trend === 'up' ? (
+                          <ArrowUpRight className="w-3 h-3 text-yellow-400 mr-1" />
+                        ) : (
+                          <ArrowDownRight className="w-3 h-3 text-red-400 mr-1" />
+                        )}
+                        <span className={movie.trend === 'up' ? 'text-yellow-400' : 'text-red-400'}>
+                          {movie.trend === 'up' ? '+' : '-'}{Math.floor(Math.random() * 15) + 5}%
+                        </span>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick Actions */}
+        <Card className="bg-gradient-to-br from-gray-900 to-black border-yellow-500/20">
+          <CardHeader>
+            <CardTitle className="text-white">Quick Actions</CardTitle>
+            <CardDescription className="text-gray-400">Common tasks and shortcuts</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Link href="/movies">
+                <Button className="w-full h-20 flex-col bg-gradient-to-br from-yellow-500/10 to-orange-500/10 hover:from-yellow-500/20 hover:to-orange-500/20 border border-yellow-500/30 hover:border-yellow-500/50 group">
+                  <Film className="w-6 h-6 mb-2 text-yellow-400 group-hover:text-yellow-300" />
+                  <span className="font-medium text-white">Manage Movies</span>
+                  <span className="text-sm text-gray-400 mt-1">Add/Edit movies</span>
+                </Button>
+              </Link>
+              
+              <Link href="/showtimes">
+                <Button className="w-full h-20 flex-col bg-gradient-to-br from-orange-500/10 to-yellow-500/10 hover:from-orange-500/20 hover:to-yellow-500/20 border border-orange-500/30 hover:border-orange-500/50 group">
+                  <Calendar className="w-6 h-6 mb-2 text-orange-400 group-hover:text-orange-300" />
+                  <span className="font-medium text-white">Schedule Showtimes</span>
+                  <span className="text-sm text-gray-400 mt-1">Set movie times</span>
+                </Button>
+              </Link>
+              
+              <Link href="/bookings">
+                <Button className="w-full h-20 flex-col bg-gradient-to-br from-yellow-600/10 to-orange-600/10 hover:from-yellow-600/20 hover:to-orange-600/20 border border-yellow-600/30 hover:border-yellow-600/50 group">
+                  <Ticket className="w-6 h-6 mb-2 text-yellow-500 group-hover:text-yellow-400" />
+                  <span className="font-medium text-white">View Bookings</span>
+                  <span className="text-sm text-gray-400 mt-1">Check reservations</span>
+                </Button>
+              </Link>
+              
+              <Link href="/analytics">
+                <Button className="w-full h-20 flex-col bg-gradient-to-br from-orange-600/10 to-yellow-600/10 hover:from-orange-600/20 hover:to-yellow-600/20 border border-orange-600/30 hover:border-orange-600/50 group">
+                  <BarChart3 className="w-6 h-6 mb-2 text-orange-500 group-hover:text-orange-400" />
+                  <span className="font-medium text-white">Advanced Analytics</span>
+                  <span className="text-sm text-gray-400 mt-1">Detailed reports</span>
+                </Button>
+              </Link>
             </div>
-          </section>
-        ))}
-
-        {/* Call to Action */}
-        <section className="text-center mt-16 p-8 bg-gradient-to-r from-orange-500/10 to-yellow-500/10 rounded-2xl border border-orange-500/20">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Ready for Some Laughs?
-          </h2>
-          <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-            Join thousands of movie lovers who book their tickets with Drunk Cinema. 
-            The best comedy and party movies await you love it man!
-          </p>
-          <Button asChild size="lg" className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 text-lg font-semibold">
-            <Link href="/movies">
-              🎟️ Book Tickets Now
-            </Link>
-          </Button>
-        </section>
-      </main>
-
-      {/* Reusable Footer */}
-      <Footer />
-    </div>
+          </CardContent>
+        </Card>
+      </div>
+    </LayoutWrapper>
   )
 }
